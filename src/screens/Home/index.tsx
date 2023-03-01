@@ -1,41 +1,53 @@
+import { useState } from "react";
 import { Text, View, TextInput, TouchableOpacity, FlatList, Alert } from "react-native";
 import { Participant } from "../../components/Participant";
 import { styles } from "./styles";
 
 export default function Home() {
-  const date = new Date().toLocaleString('BR')
-  const participants = ['Part1', 'Part2', 'Part3', 'Part4', 'Part5', 'Part6', 'Part7', 'Part8', 'Part9', 'Part10', 'Part11', 'Part12']
-  // const participants = []
-  function handleParticipantAdd(participantName: string) {
+  const todaySplited = new Date().toLocaleString('BR').split(':')
+  const [participants, setParticipants] = useState<string[]>([])
+  const [participantName, setParticipantName] = useState('')
+  const [today, setToday] = useState(todaySplited[0].concat(':',todaySplited[1]))
+
+  setTimeout(() => {
+    const todaySplited = new Date().toLocaleString('BR').split(':')
+    setToday(todaySplited[0].concat(':',todaySplited[1]))
+  }, 30000);
+
+  function handleParticipantAdd() {
     if (participants.includes(participantName)) {
       return Alert.alert('Duplicado', `Participante ${participantName} já existe`)
     }
-    participants.unshift(participantName)
+    setParticipants(prevState => [participantName, ...prevState])
+    setParticipantName('')
   }
-  function handleParticipantRemove(participantName: string){
-    Alert.alert('Remover', `Participante ${participantName} será removido. deseja continuar?`,[
+
+  function handleParticipantRemove(name: string){
+    Alert.alert('Remover', `Participante ${name} será removido. deseja continuar?`,[
       {
         text: 'Sim',
-        onPress: () => Alert.alert('Removido!')
+        onPress: () => setParticipants(prevState => prevState.filter(participant => participant !== name))
       },
       {
         text: 'Não',
         style:'cancel'
       }
-    ])
-    console.log(`clicou em remover participante ${participantName}`)
+    ])    
   }
+
   return (
     <View style={ styles.container }>
       <Text style={ styles.eventName }> Nome do Evento </Text>
-      <Text style={ styles.eventDate }> {date} </Text>
+      <Text style={ styles.eventDate }> {today} </Text>
       <View style={ styles.form }>
         <TextInput
         style={ styles.input }
         placeholder= "Nome do participante"
         placeholderTextColor= '#0b4a29'
+        onChangeText={setParticipantName}
+        value={participantName}
         />
-        <TouchableOpacity style={ styles.button } onPress={() => handleParticipantAdd('aaaaa')}>
+        <TouchableOpacity style={ styles.button } onPress={handleParticipantAdd}>
           <Text style={ styles.buttonText }> + </Text>
         </TouchableOpacity>
       </View>
